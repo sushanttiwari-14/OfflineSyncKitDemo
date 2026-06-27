@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		DFAB2C042FEFBA1F006E4AC0 /* OfflineSyncKit in Frameworks */ = {isa = PBXBuildFile; productRef = DFAB2C032FEFBA1F006E4AC0 /* OfflineSyncKit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		DFAB2BE02FEEB3E6006E4AC0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DFAB2C042FEFBA1F006E4AC0 /* OfflineSyncKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = OfflineSyncKitDemo;
 			packageProductDependencies = (
+				DFAB2C032FEFBA1F006E4AC0 /* OfflineSyncKit */,
 			);
 			productName = OfflineSyncKitDemo;
 			productReference = DFAB2BD02FEEB3E3006E4AC0 /* OfflineSyncKitDemo.app */;
@@ -195,6 +201,9 @@
 			);
 			mainGroup = DFAB2BC72FEEB3E3006E4AC0;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				DFAB2C022FEFBA1F006E4AC0 /* XCLocalSwiftPackageReference "../OfflineSyncKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DFAB2BD12FEEB3E3006E4AC0 /* Products */;
 			projectDirPath = "";
@@ -578,6 +587,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		DFAB2C022FEFBA1F006E4AC0 /* XCLocalSwiftPackageReference "../OfflineSyncKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../OfflineSyncKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DFAB2C032FEFBA1F006E4AC0 /* OfflineSyncKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = OfflineSyncKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = DFAB2BC82FEEB3E3006E4AC0 /* Project object */;
 }
