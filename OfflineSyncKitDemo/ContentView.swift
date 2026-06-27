@@ -6,56 +6,102 @@
 //
 
 import SwiftUI
-import SwiftData
+import OfflineSyncKit
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
+    @StateObject private var appSetup = AppSetup()
+    @State private var notes: [Note] = []
+    @State private var showingAddNote = false
+    
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+        NavigationStack {
+            VStack {
+                // sync status bar
+                syncStatusBar
+                
+                // notes list
+                List {
+                    ForEach(notes, id: \.id) { note in
+                        VStack(alignment: .leading) {
+                            Text(note.title)
+                                .font(.headline)
+                            Text(note.content)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
                     }
+                    .onDelete(perform: deleteNote)
                 }
-                .onDelete(perform: deleteItems)
             }
+            .navigationTitle("Notes")
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: { showingAddNote = true }) {
+                        Image(systemName: "plus")
                     }
                 }
             }
-        } detail: {
-            Text("Select an item")
-        }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+            .sheet(isPresented: $showingAddNote) {
+                AddNoteView(onSave: { title, content in
+                    addNote(title: title, content: content)
+                })
+            }
+            .onAppear {
+                loadNotes()
             }
         }
     }
-}
-
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+    
+    // sync status indicator
+    var syncStatusBar: some View {
+        HStack {
+            switch appSetup.syncState {
+            case .idle:
+                Image(systemName: "checkmark.circle")
+                Text("Up to date")
+            case .syncing:
+                ProgressView()
+                Text("Syncing...")
+            case .completed:
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(.green)
+                Text("Sync complete")
+            case .failed:
+                Image(systemName: "exclamationmark.circle")
+                    .foregroundStyle(.red)
+                Text("Sync failed")
+            }
+        }
+        .font(.caption)
+        .padding(.vertical, 6)
+        .frame(maxWidth: .infinity)
+        .background(Color(.systemGray6))
+    }
+    
+    func loadNotes() {
+        notes = (try? appSetup.storage.fetchAll()) ?? []
+    }
+    
+    func addNote(title: String, content: String) {
+        let note = Note(title: title, content: content)
+        try? appSetup.storage.save(note)
+        
+        // queue sync operation
+        let operation = SyncOperation(noteId: note.id, type: .create)
+        try? appSetup.queue.enqueue(operation)
+        
+        loadNotes()
+    }
+    
+    func deleteNote(at offsets: IndexSet) {
+        for index in offsets {
+            let note = notes[index]
+            try? appSetup.storage.delete(note)
+            
+            // queue sync operation
+            let operation = SyncOperation(noteId: note.id, type: .delete)
+            try? appSetup.queue.enqueue(operation)
+        }
+        loadNotes()
+    }
 }
