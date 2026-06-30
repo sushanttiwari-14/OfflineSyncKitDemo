@@ -1,7 +1,6 @@
 //
 //  AddNoteView.swift
 //  OfflineSyncKitDemo
-//
 //  Created by sushant tiwari on 27/06/26.
 //
 
